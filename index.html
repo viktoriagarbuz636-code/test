@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренажёр: Степенная функция, её свойства и график</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --correct-bg: #dcfce7;
+            --correct-border: #22c55e;
+            --correct-text: #15803d;
+            --incorrect-bg: #fee2e2;
+            --incorrect-border: #ef4444;
+            --incorrect-text: #b91c1c;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: var(--card-bg);
+            padding: 25px 20px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: border-color 0.3s ease;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .question-number {
+            background: #e0e7ff;
+            color: var(--primary);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .option-btn {
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 1rem;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            outline: none;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: #f1f5f9;
+        }
+
+        .option-btn.selected {
+            border-color: var(--primary);
+            background: #e0e7ff;
+        }
+
+        .option-btn.correct {
+            background-color: var(--correct-bg) !important;
+            border-color: var(--correct-border) !important;
+            color: var(--correct-text) !important;
+            font-weight: 600;
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--incorrect-bg) !important;
+            border-color: var(--incorrect-border) !important;
+            color: var(--incorrect-text) !important;
+        }
+
+        .action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .action-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .explanation {
+            margin-top: 16px;
+            padding: 14px;
+            border-radius: 8px;
+            background-color: #f1f5f9;
+            border-left: 4px solid var(--primary);
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .explanation.visible {
+            display: block;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .result-card.visible {
+            display: block;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 20px auto;
+            border: 4px solid var(--primary);
+        }
+
+        .restart-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .math {
+            font-family: "KaTeX_Math", "Cambria Math", "Times New Roman", serif;
+            font-style: italic;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            header {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+            .question-card {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Интерактивный тренажёр</h1>
+        <p class="subtitle">Степенная функция, её свойства и график (Теория)</p>
+    </header>
+
+    <div id="quiz-container"></div>
+
+    <div style="text-align: center; margin-top: 10px; margin-bottom: 30px;">
+        <button id="finish-btn" class="action-btn" style="padding: 14px 32px; font-size: 1.1rem;" onclick="finishQuiz()">Завершить тест и узнать результат</button>
+    </div>
+
+    <div id="result-card" class="result-card">
+        <h2>Результаты тестирования</h2>
+        <div class="score-circle" id="score-percentage">0%</div>
+        <p id="score-text" style="font-size: 1.1rem; margin-bottom: 10px;"></p>
+        <p id="grade-text" style="font-size: 1.2rem; font-weight: bold; color: var(--primary); margin-bottom: 20px;"></p>
+        <button class="restart-btn" onclick="restartQuiz()">Пройти тест снова</button>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    {
+        id: 1,
+        question: "Какова область определения D(y) и чётность функции y = x<sup>p</sup> при чётном натуральном показателе p = 2n (например, y = x<sup>2</sup>, y = x<sup>4</sup>)?",
+        options: [
+            "D(y) = [0; +∞), функция ни чётная, ни нечётная",
+            "D(y) = (-∞; +∞), функция чётная",
+            "D(y) = (-∞; +∞), функция нечётная",
+            "D(y) = (-∞; 0) ∪ (0; +∞), функция чётная"
+        ],
+        correct: 1,
+        explanation: "При чётном натуральном показателе p = 2n функция определена на всей числовой прямой (-∞; +∞) и является чётной, так как (-x)<sup>2n</sup> = x<sup>2n</sup>. График симметричен относительно оси Oy."
+    },
+    {
+        id: 2,
+        question: "Верно ли утверждение: Функция y = x<sup>p</sup> при нечётном натуральном показателе p = 2n - 1 (например, y = x<sup>3</sup>, y = x<sup>5</sup>) является строго возрастающей на всей области определения и имеет множество значений E(y) = (-∞; +∞)?",
+        options: [
+            "Верно",
+            "Неверно"
+        ],
+        correct: 0,
+        explanation: "Верно! Для нечётных натуральных степеней функция строго возрастает на всём множестве действительных чисел (-∞; +∞), а её область значений E(y) также равна (-∞; +∞)."
+    },
+    {
+        id: 3,
+        question: "Каковы свойства функции y = x<sup>p</sup> при целом отрицательном чётном показателе p = -2n (например, y = x<sup>-2</sup> = 1/x<sup>2</sup>)?",
+        options: [
+            "Возрастает на (-∞; 0) и убывает на (0; +∞), ограничена снизу",
+            "Убывает на (-∞; 0) и возрастает на (0; +∞), ограничена сверху",
+            "Возрастает на всей области определения, не ограничена",
+            "Убывает на всей области определения, ограничена снизу"
+        ],
+        correct: 0,
+        explanation: "При p = -2n функция чётная, определена при x ≠ 0. На промежутке (-∞; 0) она возрастает, а на (0; +∞) — убывает. Значения функции всегда положительны (y > 0), поэтому она ограничена снизу числом 0."
+    },
+    {
+        id: 4,
+        question: "Какие прямые являются асимптотами для графиков функций y = x<sup>p</sup> с отрицательным показателем p < 0 (например, y = x<sup>-1</sup>, y = x<sup>-2</sup>)?",
+        options: [
+            "Прямые y = x и y = -x",
+            "Только ось абсцисс (y = 0)",
+            "Оси координат: x = 0 (вертикальная) и y = 0 (горизонтальная)",
+            "Функции с отрицательным показателем не имеют асимптот"
+        ],
+        correct: 2,
+        explanation: "При p < 0 при x → 0 значения функции неограниченно возрастают/убывают по модулю (ось Oy, x = 0 — вертикальная асимптота), а при x → ±∞ график неограниченно приближается к оси Ox (y = 0 — горизонтальная асимптота)."
+    },
+    {
+        id: 5,
+        question: "Какова область определения D(y) и характер монотонности функции y = x<sup>p</sup> при положительном нецелом показателе (например, y = x<sup>1.3</sup> или y = x<sup>0.7</sup>)?",
+        options: [
+            "D(y) = (-∞; +∞), убывает на всей области",
+            "D(y) = [0; +∞), возрастает на [0; +∞)",
+            "D(y) = (0; +∞), убывает на (0; +∞)",
+            "D(y) = (-∞; 0) ∪ (0; +∞), чётная функция"
+        ],
+        correct: 1,
+        explanation: "Для нецелого положительного показателя p > 0 функция по определению рассматривается на луче D(y) = [0; +∞). На этой области функция является строго возрастающей и принимает значения E(y) = [0; +∞)."
+    },
+    {
+        id: 6,
+        question: "Верно ли утверждение: График функции y = x<sup>p</sup> при любом действительном показателе p всегда проходит через точку (1; 1)?",
+        options: [
+            "Верно",
+            "Неверно"
+        ],
+        correct: 0,
+        explanation: "Верно! Поскольку 1 в любой степени равно 1 (1<sup>p</sup> = 1 для любого p), график любой степенной функции всегда проходит через фиксированную точку (1; 1)."
+    }
+];
+
+let userAnswers = {};
+
+function renderQuiz() {
+    const container = document.getElementById('quiz-container');
+    container.innerHTML = '';
+
+    quizData.forEach((q, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.id = `q-card-${q.id}`;
+
+        let optionsHTML = '';
+        q.options.forEach((opt, optIndex) => {
+            optionsHTML += `
+                <button class="option-btn" 
+                        id="opt-${q.id}-${optIndex}" 
+                        onclick="selectOption(${q.id}, ${optIndex})">
+                    ${opt}
+                </button>
+            `;
+        });
+
+        card.innerHTML = `
+            <div class="question-title">
+                <span class="question-number">${index + 1}</span>
+                <div>${q.question}</div>
+            </div>
+            <div class="options-list">
+                ${optionsHTML}
+            </div>
+            <button class="action-btn" id="btn-${q.id}" onclick="checkAnswer(${q.id})" disabled>Проверить</button>
+            <div class="explanation" id="exp-${q.id}">
+                <strong>Пояснение:</strong> ${q.explanation}
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+function selectOption(qId, optIndex) {
+    if (userAnswers[qId] && userAnswers[qId].checked) return;
+
+    userAnswers[qId] = { selected: optIndex, checked: false };
+
+    const q = quizData.find(item => item.id === qId);
+    q.options.forEach((_, idx) => {
+        const btn = document.getElementById(`opt-${qId}-${idx}`);
+        if (idx === optIndex) {
+            btn.classList.add('selected');
+        } else {
+            btn.classList.remove('selected');
+        }
+    });
+
+    document.getElementById(`btn-${qId}`).disabled = false;
+}
+
+function checkAnswer(qId) {
+    const answerData = userAnswers[qId];
+    if (!answerData || answerData.checked) return;
+
+    answerData.checked = true;
+    const q = quizData.find(item => item.id === qId);
+    const isCorrect = answerData.selected === q.correct;
+
+    q.options.forEach((_, idx) => {
+        const btn = document.getElementById(`opt-${qId}-${idx}`);
+        btn.disabled = true;
+        btn.classList.remove('selected');
+
+        if (idx === q.correct) {
+            btn.classList.add('correct');
+        } else if (idx === answerData.selected && !isCorrect) {
+            btn.classList.add('incorrect');
+        }
+    });
+
+    document.getElementById(`btn-${qId}`).disabled = true;
+    document.getElementById(`exp-${qId}`).classList.add('visible');
+}
+
+function finishQuiz() {
+    quizData.forEach(q => {
+        if (userAnswers[q.id] && !userAnswers[q.id].checked) {
+            checkAnswer(q.id);
+        }
+    });
+
+    let correctCount = 0;
+    quizData.forEach(q => {
+        if (userAnswers[q.id] && userAnswers[q.id].selected === q.correct) {
+            correctCount++;
+        }
+    });
+
+    const total = quizData.length;
+    const percentage = Math.round((correctCount / total) * 100);
+
+    document.getElementById('score-percentage').innerText = `${percentage}%`;
+    document.getElementById('score-text').innerText = `Вы правильно ответили на ${correctCount} из ${total} вопросов.`;
+
+    let grade = '';
+    if (percentage >= 90) grade = 'Оценка: 5 (Отлично!)';
+    else if (percentage >= 70) grade = 'Оценка: 4 (Хорошо)';
+    else if (percentage >= 50) grade = 'Оценка: 3 (Удовлетворительно)';
+    else grade = 'Оценка: 2 (Нужно повторить теорию)';
+
+    document.getElementById('grade-text').innerText = grade;
+    document.getElementById('result-card').classList.add('visible');
+
+    document.getElementById('result-card').scrollIntoView({ behavior: 'smooth' });
+}
+
+function restartQuiz() {
+    userAnswers = {};
+    document.getElementById('result-card').classList.remove('visible');
+    renderQuiz();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Инициализация при загрузке
+renderQuiz();
+</script>
+
+</body>
+</html>
